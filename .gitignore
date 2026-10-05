@@ -1,0 +1,13 @@
+# Environment variables & secrets
+.env
+
+# Python virtual environments & cache
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local generated data files
+raw_influencers.csv
+influencer_dataset.csv
+outreach_tracker.csv

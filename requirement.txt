@@ -1,0 +1,11 @@
+groq
+tiktoken
+numpy
+pandas
+requests
+httpx
+fastapi
+streamlit
+apify-client>=1.7.0
+pydantic
+python-dotenv>=1.0.0
