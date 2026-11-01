@@ -93,13 +93,13 @@ def build_row(p, source_tag, hashtags):
 def fetch_real_influencers(hashtags=("affordableskincare", "skincarereview", "drugstoremakeup", "outfitinspo"),
                            results_per_hashtag=100, target_in_range=60, batch_size=40, max_profiles=400,
                            min_followers=5000, max_followers=100000, like_window=(30, 10000),
-                           output_csv="raw_influencers.csv"):
+                           output_csv="raw_influencers.csv", fresh=False):
     """Keeps scraping profile batches until `target_in_range` creators with 5k-100k followers are found."""
     if not APIFY_API_TOKEN:
         raise ValueError("APIFY_API_TOKEN missing. Put it in a .env file next to this script.")
     client = ApifyClient(APIFY_API_TOKEN)
 
-    has_old = os.path.exists(output_csv) and os.path.getsize(output_csv) > 5
+    has_old = not fresh and os.path.exists(output_csv) and os.path.getsize(output_csv) > 5
     existing = pd.read_csv(output_csv) if has_old else pd.DataFrame()
     seen = set(existing["Social Handle"].astype(str).str.lstrip("@")) if len(existing) else set()
     in_range = int(existing["Follower Count"].between(min_followers, max_followers).sum()) if len(existing) else 0

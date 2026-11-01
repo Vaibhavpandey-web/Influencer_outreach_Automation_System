@@ -10,13 +10,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")                      
-GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")   
-SENDER_EMAIL = os.getenv("SENDER_EMAIL", " ")
-SENDER_PASSWORD = os.getenv("SENDER_PASSWORD", " ")            
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "").strip()
+SENDER_PASSWORD = os.getenv("SENDER_PASSWORD", "").strip()
 
 BRAND = {"name": "YourBrand", "product": "vegan skincare & makeup line", "sender": "Your Name"}
-TARGET_CATEGORIES = {"Beauty", "Fashion"}                     
+TARGET_CATEGORIES = {"Beauty", "Fashion"}
 
 client = None
 if GROQ_API_KEY:
@@ -125,7 +125,7 @@ def generate_ai_messages(row, attempts=3):
             raw_content = r.choices[0].message.content
             m = json.loads(raw_content)
 
-        
+
             subject = m.get("subject") or m.get("subject_line") or f"Collab with {BRAND['name']}"
             email = m.get("email") or m.get("email_body") or m.get("email_pitch") or ""
             dm = m.get("dm") or m.get("instagram_dm") or m.get("dm_message") or ""
@@ -133,11 +133,11 @@ def generate_ai_messages(row, attempts=3):
             ew, dw = wc(email), wc(dm)
             last_generated = (subject, email, dm)
 
-            
+
             if 45 <= ew <= 110 and 10 <= dw <= 45:
                 return pd.Series([subject, email, dm])
 
-            
+
             messages.append({"role": "assistant", "content": raw_content})
             messages.append({
                 "role": "user",
@@ -166,11 +166,11 @@ def run_personalization(df):
     results = df.apply(generate_ai_messages, axis=1, result_type="expand")
     results.columns = ["Email Subject", "Generated Email Pitch", "Generated Instagram DM"]
     df[["Email Subject", "Generated Email Pitch", "Generated Instagram DM"]] = results
-    
+
     passed_count = (df["Filter Status"] == "Passed").sum()
     gen_success = ((df["Filter Status"] == "Passed") & (df["Generated Email Pitch"] != "GENERATION_FAILED")).sum()
     print(f"[4. AI] Successfully generated messages for {gen_success}/{passed_count} passed profiles.")
-    
+
     return df
 
 
@@ -178,7 +178,7 @@ def execute_sending_layer(df, tracker_file="outreach_tracker.csv", live=False):
     cols = ["Influencer", "Email", "Profile URL", "Message Generated", "Email Pitch", "Instagram DM", "Sent", "Date", "Status"]
     old = pd.read_csv(tracker_file) if os.path.exists(tracker_file) else pd.DataFrame(columns=cols)
     already = set(old.loc[old["Sent"] == "Yes", "Email"].dropna())
-    keep = old[old["Sent"] == "Yes"]  
+    keep = old[old["Sent"] == "Yes"]
 
     rows, server = [], None
     try:
