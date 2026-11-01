@@ -174,7 +174,7 @@ def run_find(tags, per_tag, target, fresh):
 
 
 def run_process(raw, old):
-    with st.spinner("Filtering, then looking for public emails on each passed creator's website..."):
+    with st.spinner("Filtering creators and normalizing available contact details..."):
         out = P.filter_influencers(raw.copy(), int(min_f), int(max_f), min_eng / 100)
         out = P.enrich_profiles(out)
         if old is not None:
@@ -217,7 +217,7 @@ with tab_find:
     with right:
         st.subheader("Filter and enrich")
         st.write(f"A creator passes with {int(min_f):,} to {int(max_f):,} followers, at least {min_eng}% engagement, "
-                 "and a Fashion or Beauty niche. Passed creators also get a public-email lookup on their own website.")
+                 "and a Fashion or Beauty niche. Available profile email addresses are normalized; websites are not crawled.")
         if st.button("Filter and enrich", type="primary", disabled=raw_df is None):
             run_process(raw_df, st.session_state.df)
             st.rerun()
